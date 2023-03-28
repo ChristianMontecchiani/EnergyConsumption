@@ -57,9 +57,12 @@ boxplot(OpaqueEnvelopeRetrofit$Energy, main="Daily Energy consumption", col="gre
 # First of all I put to NA all the data that I want to interpolate 
 # Data that has 0 energy during Sunday should stay zero. 
 OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$Energy == 0 & OpaqueEnvelopeRetrofit$DayOfTheWeek != 1] <- NA 
-OpaqueEnvelopeRetrofit$Energy <- approx(x = which(!is.na(OpaqueEnvelopeRetrofit$Energy)), 
-                                        y = OpaqueEnvelopeRetrofit$Energy[!is.na(OpaqueEnvelopeRetrofit$Energy)], 
-                                        xout = which(is.na(OpaqueEnvelopeRetrofit$Energy)))$y
+
+X <- OpaqueEnvelopeRetrofit$Iext
+Y <- OpaqueEnvelopeRetrofit$Energy
+
+y_approx <- approx(x = X, y = Y, xout = which(is.na(OpaqueEnvelopeRetrofit$Energy)))$y
+OpaqueEnvelopeRetrofit$Energy <- ifelse(is.na(OpaqueEnvelopeRetrofit$Energy), y_approx, OpaqueEnvelopeRetrofit$Energy)
 View(OpaqueEnvelopeRetrofit)
 
 # We can normalize all data that are numeric 
