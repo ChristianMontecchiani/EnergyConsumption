@@ -77,4 +77,13 @@ min_max_scale <- function(data) {
 }
 OpaqueEnvelopeRetrofitNorm <- min_max_scale(OpaqueEnvelopeRetrofit)
 View(OpaqueEnvelopeRetrofitNorm)
-
+# We can normalize all data that are numeric 
+# So we define a function to do that 
+min_max_scale <- function(data) {
+  for (col in names(data)) {
+    if (is.numeric(data[[col]])) {
+      data[col] <- (data[[col]] - min(data[[col]])) / (max(data[[col]]) - min(data[[col]]))
+    }
+  }
+  return(data)
+}
