@@ -1,4 +1,7 @@
 library(readr)
+library(lubridate)
+library(dplyr)
+library(plotly)
 
 # Store the pre-retrofit data set in a variable and start analyzing it
 file_path_preretrofit = "./Desktop/ProgettoR/data/BaselinePeriod.csv"
@@ -21,7 +24,7 @@ str(BaselinePeriod)
 # Third column is the daily mean temperature in Celsius
 # It can be analyzed through the use of box plots to highlight some outliers 
 boxplot(BaselinePeriod$Text, main="Daily mean average temperature", col="red")
-# As it is possible to see from the box plot there are no outliers 
+# As it is possible to see from the box plot there are no outliers media 
 
 # Fourth column is the "Iext" daily average solar radiance
 # It can be analyzed through the use of box plots to highlight some outliers 
@@ -55,6 +58,9 @@ energy <- BaselinePeriod$Energy
 text <- BaselinePeriod$Text
 iext <- BaselinePeriod$Iext
 
+# Eliminate data relative to Sunday that has zero energy value 
+BaselinePeriod <- BaselinePeriod[BaselinePeriod$Energy != 0, ]
+
 # Let's plot the behavior of the Energy and the External temperature
 # in the same space, so we can easily compare them 
 with(BaselinePeriod, {
@@ -65,12 +71,50 @@ with(BaselinePeriod, {
 })
 # It is possible to observe that the energy consumption increase when the external temperature decrease.
 # Moreover, in the graph the energy consumption is equal to zero on Sunday.
-
-
 with(BaselinePeriod, {
-  par(mfrow = c(1, 3))
-  scatter.smooth(datetime, energy, col = "red")
-  scatter.smooth(datetime, text, col = "red")
-  scatter.smooth(datetime, iext, col = "red", span = .3) # tweak with span
+  par(mfrow = c(1, 2))
+  scatter.smooth(datetime, energy, col = "red", xlab="Months", ylab="Energy", main="Energy consumption")
+  scatter.smooth(datetime, text, col = "red", xlab="Months", ylab="External Temp (°C)", main="External temperature")
 })
 
+# Mean and std temperature and consumption over months 
+BaselinePeriod$month <- month(BaselinePeriod$date)
+
+mean_nov <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 11])
+mean_dic <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 12])
+mean_jan <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 1])
+mean_feb <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 2])
+mean_mar <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 3])
+
+std_nov <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 11])
+std_dic <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 12])
+std_jan <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 1])
+std_feb <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 2])
+std_mar <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 3])
+
+mean_energys <- c(mean_nov, mean_dic, mean_jan, mean_feb, mean_mar)
+std_energys <- c(std_nov, std_dic, std_jan, std_feb, std_mar)
+months <- c("Nov", "Dic", "Jan", "Feb", "Mar")
+
+df <- data.frame(Month=months, MeanEn=mean_energys, StdEn=std_energys)
+
+# Mean and std temperature and consumption over months 
+plot(1:length(unique(months)),             # Draw mean values
+     mean_energys,
+     xlab = "Groups",
+     ylab = "Mean & Standard Deviation",
+     xaxt = "n",
+     ylim = c(min(df$MeanEn - df$StdEn),
+              max((df$MeanEn + df$StdEn))))
+segments(x0 = 1:length(unique(months)),    # Add standard deviations
+         y0 = df$MeanEn - df$StdEn,
+         x1 = 1:length(unique(months)),
+         y1 = df$MeanEn + df$StdEn,)
+axis(side = 1,                                 # Add x-axis labels
+     at = 1:length(unique(months)),
+     labels = months)
+grouped_data <- BaselinePeriod$Energy %>% group_by(BaselinePeriod$month )
+View(grouped_data)
+summary_data <- grouped_data %>% summarise(avg_value= mean(grouped_data$Energy))
+View(summary_data)
+hist(summary_data$avg_value)
