@@ -96,7 +96,7 @@ min_max_scale <- function(data) {
 }
 
 # Eliminate data relative to Sunday that has zero energy value 
-OpaqueEnvelopeRetrofit <- OpaqueEnvelopeRetrofit[OpaqueEnvelopeRetrofit$Energy != 0, ]
+OpaqueEnvelopeRetrofit <- OpaqueEnvelopeRetrofit[which(OpaqueEnvelopeRetrofit$Energy != 0)]
 
 # Let's plot the behavior of the Energy and the External temperature
 # in the same space, so we can easily compare them 
