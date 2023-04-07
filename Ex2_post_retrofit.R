@@ -56,6 +56,8 @@ OpaqueEnvelopeRetrofit <- OpaqueEnvelopeRetrofit[OpaqueEnvelopeRetrofit$Iext != 
 View(OpaqueEnvelopeRetrofit)
 # The value of the 20/02/2018 has been deleted
 
+
+
 # Let's analyze the last variable which is the Energy Consumption
 boxplot(OpaqueEnvelopeRetrofit$Energy, main="Daily Energy consumption", col="green")
 # As it is possible to see from the box plot there are no outliers
@@ -67,7 +69,7 @@ X <- OpaqueEnvelopeRetrofit$Iext
 Y <- OpaqueEnvelopeRetrofit$Energy
 
 y_approx <- approx(x = X, y = Y, xout = which(is.na(OpaqueEnvelopeRetrofit$Energy)))$y
-OpaqueEnvelopeRetrofit$Energy <- ifelse(is.na(OpaqueEnvelopeRetrofit$Energy), y_approx, OpaqueEnvelopeRetrofit$Energy)
+OpaqueEnvelopeRetrofit$Energy  <- ifelse(is.na(OpaqueEnvelopeRetrofit$Energy), y_approx, OpaqueEnvelopeRetrofit$Energy)
 View(OpaqueEnvelopeRetrofit)
 
 # We can normalize all data that are numeric 
@@ -94,11 +96,11 @@ min_max_scale <- function(data) {
 }
 
 # Eliminate data relative to Sunday that has zero energy value 
-BaselinePeriod <- BaselinePeriod[BaselinePeriod$Energy != 0, ]
+OpaqueEnvelopeRetrofit <- OpaqueEnvelopeRetrofit[OpaqueEnvelopeRetrofit$Energy != 0, ]
 
 # Let's plot the behavior of the Energy and the External temperature
 # in the same space, so we can easily compare them 
-with(BaselinePeriod, {
+with(OpaqueEnvelopeRetrofit, {
   par(mfrow = c(1, 2))
   # Line plot for the consumption of the energy over the days 
   plot(datetime, energy, type="l", xlab="Months", ylab="Energy", main="Energy consumption", col="red")
@@ -106,26 +108,26 @@ with(BaselinePeriod, {
 })
 # It is possible to observe that the energy consumption increase when the external temperature decrease.
 # Moreover, in the graph the energy consumption is equal to zero on Sunday.
-with(BaselinePeriod, {
+with(OpaqueEnvelopeRetrofit, {
   par(mfrow = c(1, 2))
   scatter.smooth(datetime, energy, col = "red", xlab="Months", ylab="Energy", main="Energy consumption")
   scatter.smooth(datetime, text, col = "red", xlab="Months", ylab="External Temp (°C)", main="External temperature")
 })
 
 # Mean and std temperature and consumption over months 
-BaselinePeriod$month <- month(BaselinePeriod$date)
+OpaqueEnvelopeRetrofit$month <- month(OpaqueEnvelopeRetrofit$date)
 
-mean_nov <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 11])
-mean_dic <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 12])
-mean_jan <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 1])
-mean_feb <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 2])
-mean_mar <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 3])
+mean_nov <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 11])
+mean_dic <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 12])
+mean_jan <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 1])
+mean_feb <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 2])
+mean_mar <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 3])
 
-std_nov <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 11])
-std_dic <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 12])
-std_jan <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 1])
-std_feb <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 2])
-std_mar <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 3])
+std_nov <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 11])
+std_dic <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 12])
+std_jan <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 1])
+std_feb <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 2])
+std_mar <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 3])
 
 mean_energys <- c(mean_nov, mean_dic, mean_jan, mean_feb, mean_mar)
 std_energys <- c(std_nov, std_dic, std_jan, std_feb, std_mar)
@@ -139,17 +141,17 @@ ggplot(df , aes(x=Month, y=MeanEn)) +
   geom_point(size=2) +
   ggtitle("Energy Consumption") +
   labs(x="Months" ,y="Mean/Std")
-mean_nov <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 11])
-mean_dic <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 12])
-mean_jan <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 1])
-mean_feb <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 2])
-mean_mar <- mean(BaselinePeriod$Energy[BaselinePeriod$month == 3])
+mean_nov <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 11])
+mean_dic <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 12])
+mean_jan <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 1])
+mean_feb <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 2])
+mean_mar <- mean(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 3])
 
-std_nov <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 11])
-std_dic <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 12])
-std_jan <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 1])
-std_feb <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 2])
-std_mar <- sd(BaselinePeriod$Energy[BaselinePeriod$month == 3])
+std_nov <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 11])
+std_dic <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 12])
+std_jan <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 1])
+std_feb <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 2])
+std_mar <- sd(OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$month == 3])
 
 mean_energys <- c(mean_nov, mean_dic, mean_jan, mean_feb, mean_mar)
 std_energys <- c(std_nov, std_dic, std_jan, std_feb, std_mar)
@@ -165,17 +167,17 @@ ggplot(df , aes(x=Month, y=MeanEn)) +
   labs(x="Months" ,y="Mean/Std")
 
 # Do the same for the irradiance 
-mean_nov <- mean(BaselinePeriod$Iext[BaselinePeriod$month == 11])
-mean_dic <- mean(BaselinePeriod$Iext[BaselinePeriod$month == 12])
-mean_jan <- mean(BaselinePeriod$Iext[BaselinePeriod$month == 1])
-mean_feb <- mean(BaselinePeriod$Iext[BaselinePeriod$month == 2])
-mean_mar <- mean(BaselinePeriod$Iext[BaselinePeriod$month == 3])
+mean_nov <- mean(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 11])
+mean_dic <- mean(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 12])
+mean_jan <- mean(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 1])
+mean_feb <- mean(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 2])
+mean_mar <- mean(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 3])
 
-std_nov <- sd(BaselinePeriod$Iext[BaselinePeriod$month == 11])
-std_dic <- sd(BaselinePeriod$Iext[BaselinePeriod$month == 12])
-std_jan <- sd(BaselinePeriod$Iext[BaselinePeriod$month == 1])
-std_feb <- sd(BaselinePeriod$Iext[BaselinePeriod$month == 2])
-std_mar <- sd(BaselinePeriod$Iext[BaselinePeriod$month == 3])
+std_nov <- sd(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 11])
+std_dic <- sd(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 12])
+std_jan <- sd(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 1])
+std_feb <- sd(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 2])
+std_mar <- sd(OpaqueEnvelopeRetrofit$Iext[OpaqueEnvelopeRetrofit$month == 3])
 
 mean_energys <- c(mean_nov, mean_dic, mean_jan, mean_feb, mean_mar)
 std_energys <- c(std_nov, std_dic, std_jan, std_feb, std_mar)
