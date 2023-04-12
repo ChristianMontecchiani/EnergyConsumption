@@ -92,10 +92,13 @@ summary(nn)
 names(nn)
 # Compute RMSE 
 RMSE <- rmse(actual = BaselinePeriod$Energy, predicted = nn$fitted.values)
+print(paste("Neural Network RMSE:", RMSE))
 # Compute CVRMSE
 CVRMSE <- (1/mean(BaselinePeriod$Energy)) * RMSE
+print(paste("Neural Network CVRMSE:", CVRMSE))
 # Compute MAPE 
 MAPE <- mape(actual = BaselinePeriod$Energy, predicted = nn$fitted.values)
+print(paste("Neural Network MAPE:", MAPE))
 
 
 # Neural NetWork with normalization
@@ -108,3 +111,12 @@ nn <- nnet(Energy~., data=BaselinePeriodNorm, size=4, linout=TRUE, skip=TRUE, Ma
 # trace   -> FALSE no tracing optimization. Default TRUE.
 # maxit   -> Max iteration number.
 summary(nn)
+# Compute RMSE 
+RMSE <- rmse(actual = BaselinePeriod$Energy, predicted = nn$fitted.values)
+print(paste("Neural Network RMSE:", RMSE))
+# Compute CVRMSE
+CVRMSE <- (1/mean(BaselinePeriod$Energy)) * RMSE
+print(paste("Neural Network CVRMSE:", CVRMSE))
+# Compute MAPE 
+MAPE <- mape(actual = BaselinePeriod$Energy, predicted = nn$fitted.values)
+print(paste("Neural Network MAPE:", MAPE))
