@@ -17,14 +17,29 @@ BaselinePeriod <- read.csv(file_path_preretrofit)
 # 1) Change date format
 # 2) Factorize the day of the week 
 # 3) Eliminate rows that corresponds to Sunday
-BaselinePeriod$date <- as.POSIXct(BaselinePeriod$date, format="%Y-%m-%d") 
+BaselinePeriod$date <- as.POSIXct(BaselinePeriod$date, format="%Y-%m-%d")
+OpaqueEnvelopeRetrofit$date <- as.POSIXct(OpaqueEnvelopeRetrofit$date, format="%Y-%m-%d") 
+
 BaselinePeriod$DayOfTheWeek <- as.factor(BaselinePeriod$DayOfTheWeek)
+OpaqueEnvelopeRetrofit$DayOfTheWeek <- as.factor(OpaqueEnvelopeRetrofit$DayOfTheWeek)
+
 BaselinePeriod <- BaselinePeriod[BaselinePeriod$Energy != 0, ]
+OpaqueEnvelopeRetrofit$Energy[OpaqueEnvelopeRetrofit$Energy == 0 & OpaqueEnvelopeRetrofit$DayOfTheWeek != 1] <- NA 
+
+X <- OpaqueEnvelopeRetrofit$Iext
+Y <- OpaqueEnvelopeRetrofit$Energy
+
+y_approx <- approx(x = X, y = Y, xout = which(is.na(OpaqueEnvelopeRetrofit$Energy)))$y
+OpaqueEnvelopeRetrofit$Energy  <- ifelse(is.na(OpaqueEnvelopeRetrofit$Energy), y_approx, OpaqueEnvelopeRetrofit$Energy)
+OpaqueEnvelopeRetrofit <- OpaqueEnvelopeRetrofit[OpaqueEnvelopeRetrofit$Energy != 0]
+
+# Visualize data
+View(OpaqueEnvelopeRetrofit)
 View(BaselinePeriod)
 
 # Build linear model without normalization 
-energy_cons_reg <-  lm(Energy  ~ Text, data= BaselinePeriod)
-summary(energy_cons_reg) # Summary contains R^2
+lm_preretrofit <-  lm(Energy  ~ Text, data= BaselinePeriod)
+predict.lm(lm_preretrofit, OpaqueEnvelopeRetrofit$Energy)
 
 # Compute RMSE 
 RMSE <- rmse(actual = BaselinePeriod$Energy, predicted = energy_cons_reg$fitted.values)
