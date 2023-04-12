@@ -84,14 +84,10 @@ y_pred_postretrofit <- predict.lm(lm_postretrofit, test_df)
 y_true <- OpaqueEnvelopeRetrofit$Energy
 text <- OpaqueEnvelopeRetrofit$Text
 
-plot(text, y_pred_preretrofit, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption (Retrofit)", col="red")
-points(text, y_true, col= "blue", pch=2)
-segments(text, y_true, text, y_pred, lty="dotted")
-legend("topright", legend=c(" Prediction", "True"),
-       col=c("red", "blue"), pch = c(23,2), cex=0.8)
-
-plot(text, y_pred_postretrofit, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption  (Post-Retrofit)", col="red")
-points(text, y_true, col= "blue", pch=2)
-segments(text, y_true, text, y_pred, lty="dotted")
-legend("topright", legend=c(" Prediction", "True"),
+plot(x= text, y= y_pred_preretrofit, xlab="External Temp (°C)", pch=23, ylab="Energy", main="Model-to-Model", col="red")
+points(text, y_pred_postretrofit, col= "blue", pch=2)
+segments(text, y_pred_preretrofit, text, y_pred_postretrofit, lty="dotted")
+abline(lm_preretrofit, col="red")
+abline(lm_postretrofit, col="blue")
+legend("topright", legend=c("Retrofit", "PostRetrofit"),
        col=c("red", "blue"), pch = c(23,2), cex=0.8)
