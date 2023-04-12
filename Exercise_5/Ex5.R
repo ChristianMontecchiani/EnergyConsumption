@@ -44,15 +44,9 @@ y_pred <- predict.lm(lm_preretrofit, new)
 y_true <- OpaqueEnvelopeRetrofit$Energy
 text <- OpaqueEnvelopeRetrofit$Text
 
-df2 <- data.frame(Text = OpaqueEnvelopeRetrofit$Text, Energy=OpaqueEnvelopeRetrofit$Energy)
-df1 <- OpaqueEnvelopeRetrofit[, 4:5]
-View(df1)
-df3 = rbind(df1,df2)
-View(df1)
-
 
 # Line plot for the consumption of the energy over the days 
-plot(text, y_pred, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption", col="red", legend="Pred")
+plot(text, y_pred, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption (LM)", col="red")
 points(text, y_true, col= "blue", pch=2,  legend="Ground Truth")
 segments(text, y_true, text, y_pred, lty="dotted")
 legend("topright", legend=c(" Prediction", "True"),
@@ -61,42 +55,15 @@ legend("topright", legend=c(" Prediction", "True"),
 
 # As you can see there is a linear negative relationship between external temperature and energy consumption
 set.seed(100)
-nn <- nnet(Energy~., data=BaselinePeriod, size=4, linout=TRUE, skip=TRUE, MaxNWts=10000, trace=FALSE, maxit=500, )
-# Explain variables 
-# linout  -> TRUE for linear output units. FALSE for logistic output units.
-# skip    -> TRUE to add skip-layer connections from input to output.
-# MaxNWts -> The maximum allowable number of weights. There is no intrinsic limit in the code, but increasing MaxNWts will probably allow fits that are very slow and time-consuming.
-# trace   -> FALSE no tracing optimization. Default TRUE.
-# maxit   -> Max iteration number.
-summary(nn)
-names(nn)
-# Compute RMSE 
-RMSE <- rmse(actual = BaselinePeriod$Energy, predicted = nn$fitted.values)
-print(paste("Neural Network RMSE:", RMSE))
-# Compute CVRMSE
-CVRMSE <- (1/mean(BaselinePeriod$Energy)) * RMSE
-print(paste("Neural Network CVRMSE:", CVRMSE))
-# Compute MAPE 
-MAPE <- mape(actual = BaselinePeriod$Energy, predicted = nn$fitted.values)
-print(paste("Neural Network MAPE:", MAPE))
+nn_preretrofit <- nnet(Energy~., data=BaselinePeriod, size=4, linout=TRUE, skip=TRUE, MaxNWts=10000, trace=FALSE, maxit=500, )
+y_pred <- predict(nn_preretrofit, OpaqueEnvelopeRetrofit)
+y_true <- OpaqueEnvelopeRetrofit$Energy
+text <- OpaqueEnvelopeRetrofit$Text
 
 
-# Neural NetWork with normalization
-set.seed(100)
-nn <- nnet(Energy~., data=BaselinePeriodNorm, size=4, linout=TRUE, skip=TRUE, MaxNWts=10000, trace=FALSE, maxit=500, )
-# Explain variables 
-# linout  -> TRUE for linear output units. FALSE for logistic output units.
-# skip    -> TRUE to add skip-layer connections from input to output.
-# MaxNWts -> The maximum allowable number of weights. There is no intrinsic limit in the code, but increasing MaxNWts will probably allow fits that are very slow and time-consuming.
-# trace   -> FALSE no tracing optimization. Default TRUE.
-# maxit   -> Max iteration number.
-summary(nn)
-# Compute RMSE 
-RMSE <- rmse(actual = BaselinePeriod$Energy, predicted = nn$fitted.values)
-print(paste("Neural Network RMSE:", RMSE))
-# Compute CVRMSE
-CVRMSE <- (1/mean(BaselinePeriod$Energy)) * RMSE
-print(paste("Neural Network CVRMSE:", CVRMSE))
-# Compute MAPE 
-MAPE <- mape(actual = BaselinePeriod$Energy, predicted = nn$fitted.values)
-print(paste("Neural Network MAPE:", MAPE))
+# Line plot for the consumption of the energy over the days 
+plot(text, y_pred, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption", col="red")
+points(text, y_true, col= "blue", pch=2,  legend="Ground Truth")
+segments(text, y_true, text, y_pred, lty="dotted")
+legend("topright", legend=c(" Prediction", "True"),
+       col=c("red", "blue"), pch = c(23,2), cex=0.8)
