@@ -31,7 +31,7 @@ Y <- OpaqueEnvelopeRetrofit$Energy
 
 y_approx <- approx(x = X, y = Y, xout = which(is.na(OpaqueEnvelopeRetrofit$Energy)))$y
 OpaqueEnvelopeRetrofit$Energy  <- ifelse(is.na(OpaqueEnvelopeRetrofit$Energy), y_approx, OpaqueEnvelopeRetrofit$Energy)
-OpaqueEnvelopeRetrofit <- OpaqueEnvelopeRetrofit[OpaqueEnvelopeRetrofit$Energy != 0]
+OpaqueEnvelopeRetrofit <- OpaqueEnvelopeRetrofit[OpaqueEnvelopeRetrofit$Energy != 0, ]
 
 # Visualize data
 View(OpaqueEnvelopeRetrofit)
@@ -39,63 +39,25 @@ View(BaselinePeriod)
 
 # Build linear model without normalization 
 lm_preretrofit <-  lm(Energy  ~ Text, data= BaselinePeriod)
-predict.lm(lm_preretrofit, OpaqueEnvelopeRetrofit$Energy)
+new <- data.frame(Text = OpaqueEnvelopeRetrofit$Text)
+y_pred <- predict.lm(lm_preretrofit, new)
+y_true <- OpaqueEnvelopeRetrofit$Energy
+text <- OpaqueEnvelopeRetrofit$Text
 
-# Compute RMSE 
-RMSE <- rmse(actual = BaselinePeriod$Energy, predicted = energy_cons_reg$fitted.values)
-# Compute CVRMSE
-CVRMSE <- (1/mean(BaselinePeriod$Energy)) * RMSE
-# Compute MAPE 
-MAPE <- mape(actual = BaselinePeriod$Energy, predicted = energy_cons_reg$fitted.values)
-
-# Check the norm of the residuals
-residuals <- energy_cons_reg$coefficients
-hist(residuals)
-shapiro.test(residuals)
-plot(residuals, pch = 16, col = "red")
-
-# Plot the model 
-plot(energy_cons_reg)
+df2 <- data.frame(Text = OpaqueEnvelopeRetrofit$Text, Energy=OpaqueEnvelopeRetrofit$Energy)
+df1 <- OpaqueEnvelopeRetrofit[, 4:5]
+View(df1)
+df3 = rbind(df1,df2)
+View(df1)
 
 
-# We can normalize all data that are numeric 
-min_max_scale <- function(data) {
-  for (col in names(data)) {
-    if (is.numeric(data[[col]])) {
-      data[col] <- (data[[col]] - min(data[[col]])) / (max(data[[col]]) - min(data[[col]]))
-    }
-  }
-  return(data)
-}
+# Line plot for the consumption of the energy over the days 
+plot(text, y_pred, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption", col="red", legend="Pred")
+points(text, y_true, col= "blue", pch=2,  legend="Ground Truth")
+segments(text, y_true, text, y_pred, lty="dotted")
+legend("topright", legend=c(" Prediction", "True"),
+       col=c("red", "blue"), pch = c(23,2), cex=0.8)
 
-evaluate_model <- function(data){
-  lin_model <- lm(Energy  ~ Text, data=data)
-  # Compute RMSE 
-  RMSE <- rmse(actual = data$Energy, predicted = lin_model$fitted.values)
-  print(paste("RMSE:", RMSE))
-  # Compute CVRMSE
-  CVRMSE <- (1/mean(data$Energy)) * RMSE
-  print(paste("CVRMSE:", CVRMSE))
-  # Compute MAPE 
-  MAPE <- mape(actual = data$Energy, predicted = lin_model$fitted.values)
-  print(paste("MAPE:", MAPE))
-  
-  
-  return(lin_model)
-}
-# Build linear model with normalization 
-BaselinePeriodNorm <- min_max_scale(BaselinePeriod)
-norm_lm <- evaluate_model(BaselinePeriodNorm)
-lm <- evaluate_model(BaselinePeriod)
-
-# Check the norm of the residuals
-residuals <- norm_lm$coefficients
-hist(residuals)
-shapiro.test(residuals)
-plot(residuals, pch = 16, col = "red")
-
-# Plot the model 
-plot(norm_lm)
 
 # As you can see there is a linear negative relationship between external temperature and energy consumption
 set.seed(100)
