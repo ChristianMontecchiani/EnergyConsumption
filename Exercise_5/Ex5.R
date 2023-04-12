@@ -47,7 +47,7 @@ text <- OpaqueEnvelopeRetrofit$Text
 
 # Line plot for the consumption of the energy over the days 
 plot(text, y_pred, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption (LM)", col="red")
-points(text, y_true, col= "blue", pch=2,  legend="Ground Truth")
+points(text, y_true, col= "blue", pch=2)
 segments(text, y_true, text, y_pred, lty="dotted")
 legend("topright", legend=c(" Prediction", "True"),
        col=c("red", "blue"), pch = c(23,2), cex=0.8)
@@ -62,8 +62,36 @@ text <- OpaqueEnvelopeRetrofit$Text
 
 
 # Line plot for the consumption of the energy over the days 
-plot(text, y_pred, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption", col="red")
-points(text, y_true, col= "blue", pch=2,  legend="Ground Truth")
+plot(text, y_pred, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption (NN)", col="red")
+points(text, y_true, col= "blue", pch=2)
+segments(text, y_true, text, y_pred, lty="dotted")
+legend("topright", legend=c(" Prediction", "True"),
+       col=c("red", "blue"), pch = c(23,2), cex=0.8)
+##########################################################################################################################
+### METODO 2
+##########################################################################################################################
+
+# Build linear model without normalization 
+lm_preretrofit <-  lm(Energy  ~ Text + Iext, data= BaselinePeriod)
+lm_postretrofit <- lm(Energy  ~ Text + Iext, data= OpaqueEnvelopeRetrofit)
+
+# Create dataframe to test 
+test_df <- data.frame(Text = OpaqueEnvelopeRetrofit$Text, Iext = OpaqueEnvelopeRetrofit$Iext)
+
+y_pred_preretrofit <- predict.lm(lm_preretrofit, test_df)
+y_pred_postretrofit <- predict.lm(lm_postretrofit, test_df)
+
+y_true <- OpaqueEnvelopeRetrofit$Energy
+text <- OpaqueEnvelopeRetrofit$Text
+
+plot(text, y_pred_preretrofit, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption (Retrofit)", col="red")
+points(text, y_true, col= "blue", pch=2)
+segments(text, y_true, text, y_pred, lty="dotted")
+legend("topright", legend=c(" Prediction", "True"),
+       col=c("red", "blue"), pch = c(23,2), cex=0.8)
+
+plot(text, y_pred_postretrofit, type="o", xlab="External Temp (°C)", pch=23, ylab="Energy", main="Energy consumption  (Post-Retrofit)", col="red")
+points(text, y_true, col= "blue", pch=2)
 segments(text, y_true, text, y_pred, lty="dotted")
 legend("topright", legend=c(" Prediction", "True"),
        col=c("red", "blue"), pch = c(23,2), cex=0.8)
